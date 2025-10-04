@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
+/* 크래커스 스튜디오 컬러 팔레트 */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FFFFFF;
+  --foreground: #2D2D2D;
+  --primary: #F5C842;
+  --secondary: #8BC34A;
+  --accent: #F9F9F9;
+  --yellow: #F5C842;
+  --green: #8BC34A;
+  --brown: #8B7355;
+  --light-green: #E8F5E9;
+  --light-yellow: #FFFBF0;
 }
 
 @theme inline {
@@ -12,15 +21,28 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: #FFFFFF;
+  color: var(--foreground);
+  font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 스크롤바 */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8B7355;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6B5335;
 }
