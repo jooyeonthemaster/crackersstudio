@@ -245,11 +245,11 @@ export function BookGrid({ books }: BookGridProps) {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.8, opacity: 0 }}
                     transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
-                    className="fixed inset-0 z-[60] flex items-center justify-center p-6 pointer-events-none"
+                    className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 pointer-events-none"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <motion.div
-                      className="bg-white rounded-[3rem] shadow-2xl border-4 border-yellow-300 w-full max-w-[600px] aspect-square overflow-hidden relative pointer-events-auto"
+                      className="bg-white rounded-2xl sm:rounded-[3rem] shadow-2xl border-2 sm:border-4 border-yellow-300 w-full max-w-[95vw] sm:max-w-[500px] md:max-w-[600px] max-h-[90vh] overflow-y-auto relative pointer-events-auto"
                       animate={{
                         boxShadow: isPlaying
                           ? ["0 25px 80px rgba(251, 191, 36, 0.4)", "0 30px 100px rgba(251, 191, 36, 0.6)", "0 25px 80px rgba(251, 191, 36, 0.4)"]
@@ -258,7 +258,7 @@ export function BookGrid({ books }: BookGridProps) {
                       transition={{ duration: 2, repeat: isPlaying ? Infinity : 0 }}
                     >
                       {/* 헤더 */}
-                      <div className="bg-gradient-to-r from-yellow-300 via-green-300 to-yellow-300 px-8 py-6 flex justify-between items-center relative overflow-hidden">
+                      <div className="bg-gradient-to-r from-yellow-300 via-green-300 to-yellow-300 px-3 py-3 sm:px-8 sm:py-6 flex justify-between items-center relative overflow-hidden">
                         {/* 귀여운 배경 애니메이션 */}
                         {isPlaying && (
                           <motion.div
@@ -267,26 +267,26 @@ export function BookGrid({ books }: BookGridProps) {
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                           />
                         )}
-                        <div className="flex items-center gap-4 relative z-10">
-                          <span className="text-4xl">
+                        <div className="flex items-center gap-2 sm:gap-4 relative z-10">
+                          <span className="text-2xl sm:text-4xl">
                             🎵
                           </span>
-                          <span className="font-bold text-gray-800 text-2xl">✨ Now Playing ✨</span>
+                          <span className="font-bold text-gray-800 text-sm sm:text-2xl">✨ Now Playing ✨</span>
                         </div>
                         {isPlaying && (
-                          <div className="flex items-center gap-2 relative z-10">
+                          <div className="flex items-center gap-1 sm:gap-2 relative z-10">
                             <motion.span
-                              className="inline-block w-4 h-4 rounded-full bg-white shadow-lg"
+                              className="inline-block w-2 h-2 sm:w-4 sm:h-4 rounded-full bg-white shadow-lg"
                               animate={{ scale: [1, 1.3, 1] }}
                               transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
                             />
                             <motion.span
-                              className="inline-block w-4 h-4 rounded-full bg-white shadow-lg"
+                              className="inline-block w-2 h-2 sm:w-4 sm:h-4 rounded-full bg-white shadow-lg"
                               animate={{ scale: [1, 1.3, 1] }}
                               transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
                             />
                             <motion.span
-                              className="inline-block w-4 h-4 rounded-full bg-white shadow-lg"
+                              className="inline-block w-2 h-2 sm:w-4 sm:h-4 rounded-full bg-white shadow-lg"
                               animate={{ scale: [1, 1.3, 1] }}
                               transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
                             />
@@ -295,11 +295,11 @@ export function BookGrid({ books }: BookGridProps) {
                       </div>
 
                       {/* 메인 콘텐츠 */}
-                      <div className="p-8 bg-gradient-to-b from-white to-yellow-50 h-[calc(100%-88px)] flex flex-col justify-center gap-6">
+                      <div className="p-4 sm:p-6 md:p-8 bg-gradient-to-b from-white to-yellow-50 flex flex-col justify-center gap-3 sm:gap-6">
                         {/* 캐릭터 이미지 */}
                         <div className="flex items-center justify-center">
                           <motion.div
-                            className="relative w-44 h-44 rounded-2xl overflow-hidden shadow-2xl border-3 border-yellow-200"
+                            className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border-2 sm:border-3 border-yellow-200"
                             whileHover={{ scale: 1.05 }}
                             transition={{ type: "spring", stiffness: 300 }}
                           >
