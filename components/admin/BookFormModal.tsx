@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '@/types';
 import Image from 'next/image';
 import { uploadImage, uploadAudio } from '@/lib/supabase';
+import CharacterEditor from '@/components/editor/CharacterEditor';
 
 interface BookFormModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export function BookFormModal({ isOpen, onClose, onSave, editBook }: BookFormMod
     coverImage: '',
     audioFile: '',
     description: '',
+    content: '',
     genre: 'Character',
     publishedYear: new Date().getFullYear(),
   });
@@ -38,6 +40,7 @@ export function BookFormModal({ isOpen, onClose, onSave, editBook }: BookFormMod
         coverImage: editBook.coverImage,
         audioFile: editBook.audioFile,
         description: editBook.description || '',
+        content: editBook.content || '',
         genre: editBook.genre || 'Character',
         publishedYear: editBook.publishedYear || new Date().getFullYear(),
       });
@@ -52,6 +55,7 @@ export function BookFormModal({ isOpen, onClose, onSave, editBook }: BookFormMod
         coverImage: '',
         audioFile: '',
         description: '',
+        content: '',
         genre: 'Character',
         publishedYear: new Date().getFullYear(),
       });
@@ -154,7 +158,7 @@ export function BookFormModal({ isOpen, onClose, onSave, editBook }: BookFormMod
             transition={{ type: 'spring', bounce: 0.3 }}
             className="fixed inset-0 flex items-center justify-center z-50 p-4"
           >
-            <div className="bg-white rounded-[2rem] shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border-4 border-yellow-300 overflow-hidden">
+            <div className="bg-white rounded-[2rem] shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col border-4 border-yellow-300 overflow-hidden">
               {/* 헤더 (고정) */}
               <div className="bg-gradient-to-r from-yellow-300 via-green-300 to-yellow-300 px-8 py-6 flex-shrink-0">
                 <div className="flex justify-between items-center">
@@ -309,6 +313,21 @@ export function BookFormModal({ isOpen, onClose, onSave, editBook }: BookFormMod
                     placeholder="캐릭터 설명을 입력하세요"
                     rows={3}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none transition-colors resize-none"
+                  />
+                </div>
+
+                {/* 블로그 스토리 에디터 */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    📝 캐릭터 스토리 (블로그 형태)
+                  </label>
+                  <p className="text-xs text-gray-500 mb-3">
+                    이미지, 링크, 테이블 등을 자유롭게 추가하여 풍부한 스토리를 작성하세요!
+                  </p>
+                  <CharacterEditor
+                    content={formData.content}
+                    onChange={(html) => setFormData(prev => ({ ...prev, content: html }))}
+                    placeholder="캐릭터의 배경 스토리, 특징, 에피소드 등을 자유롭게 작성하세요..."
                   />
                 </div>
 

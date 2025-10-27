@@ -119,3 +119,4 @@ WITH CHECK ( bucket_id = 'audio' AND auth.role() = 'authenticated' );
 
 준비 완료! 이제 Admin 페이지에서 파일을 업로드할 수 있습니다! 🚀
 
+

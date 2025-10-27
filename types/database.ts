@@ -18,6 +18,7 @@ export interface Database {
           cover_image: string
           audio_file: string
           description: string | null
+          content: string | null
           genre: string | null
           published_year: number | null
           display_order: number
@@ -31,6 +32,7 @@ export interface Database {
           cover_image: string
           audio_file: string
           description?: string | null
+          content?: string | null
           genre?: string | null
           published_year?: number | null
           display_order?: number
@@ -44,6 +46,7 @@ export interface Database {
           cover_image?: string
           audio_file?: string
           description?: string | null
+          content?: string | null
           genre?: string | null
           published_year?: number | null
           display_order?: number

@@ -3,17 +3,16 @@
 import { Book } from '@/types';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
 
 interface BookCardProps {
   book: Book;
-  onPlay: (book: Book) => void;
-  onShowPopup: (book: Book) => void;
   isCurrentlyPlaying?: boolean;
 }
 
-export function BookCard({ book, onPlay, onShowPopup, isCurrentlyPlaying = false }: BookCardProps) {
+export function BookCard({ book, isCurrentlyPlaying = false }: BookCardProps) {
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -38,31 +37,13 @@ export function BookCard({ book, onPlay, onShowPopup, isCurrentlyPlaying = false
     setImageError(true);
   };
 
-  const handleCardClick = () => {
-    if (cardRef.current) {
-      gsap.to(cardRef.current, {
-        scale: 0.95,
-        duration: 0.1,
-        ease: "power2.out",
-        yoyo: true,
-        repeat: 1
-      });
-    }
-
-    if (book.showCopyrightPopup || book.isPictureBook) {
-      onShowPopup(book);
-    } else {
-      onPlay(book);
-    }
-  };
-
   return (
+    <Link href={`/characters/${book.id}`}>
     <motion.div
       ref={cardRef}
-      className="relative group cursor-pointer"
+      className="relative group cursor-pointer block"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={handleCardClick}
       whileHover={{ y: -8, rotate: isCurrentlyPlaying ? 0 : 2 }}
       transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
     >
@@ -190,13 +171,13 @@ export function BookCard({ book, onPlay, onShowPopup, isCurrentlyPlaying = false
                 </motion.div>
               </div>
 
-              <motion.div 
+              <motion.div
                 className="text-white font-bold text-sm drop-shadow-2xl bg-gray-900/50 backdrop-blur-sm px-4 py-2 rounded-full"
                 initial={{ scale: 0 }}
                 whileHover={{ scale: 1 }}
                 transition={{ delay: 0.1 }}
               >
-                {isCurrentlyPlaying ? '⏸️ 일시정지' : '🎵 음성 듣기'}
+                📖 스토리 보기
               </motion.div>
             </motion.div>
           </div>
@@ -248,5 +229,6 @@ export function BookCard({ book, onPlay, onShowPopup, isCurrentlyPlaying = false
         </div>
       </div>
     </motion.div>
+    </Link>
   );
 }

@@ -75,6 +75,7 @@ export async function fetchBooks() {
     coverImage: book.cover_image,
     audioFile: book.audio_file,
     description: book.description || '',
+    content: book.content || '',
     genre: book.genre || 'Character',
     publishedYear: book.published_year || 2024,
   }));
@@ -87,6 +88,7 @@ export async function createBook(book: {
   coverImage: string;
   audioFile: string;
   description?: string;
+  content?: string;
   genre?: string;
   publishedYear?: number;
 }): Promise<{ success: boolean; data?: Database['public']['Tables']['books']['Row']; error?: string }> {
@@ -98,6 +100,7 @@ export async function createBook(book: {
       cover_image: book.coverImage,
       audio_file: book.audioFile,
       description: book.description,
+      content: book.content,
       genre: book.genre || 'Character',
       published_year: book.publishedYear || 2024,
       display_order: 0, // 기본값, 나중에 재정렬
@@ -120,6 +123,7 @@ export async function updateBook(id: number, updates: {
   coverImage?: string;
   audioFile?: string;
   description?: string;
+  content?: string;
   genre?: string;
   publishedYear?: number;
 }) {
@@ -129,6 +133,7 @@ export async function updateBook(id: number, updates: {
   if (updates.coverImage) dbUpdates.cover_image = updates.coverImage;
   if (updates.audioFile) dbUpdates.audio_file = updates.audioFile;
   if (updates.description !== undefined) dbUpdates.description = updates.description;
+  if (updates.content !== undefined) dbUpdates.content = updates.content;
   if (updates.genre) dbUpdates.genre = updates.genre;
   if (updates.publishedYear) dbUpdates.published_year = updates.publishedYear;
 

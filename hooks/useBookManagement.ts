@@ -114,6 +114,7 @@ export function useBookManagement({ mode = 'admin' }: UseBookManagementOptions =
           coverImage: book.coverImage,
           audioFile: book.audioFile,
           description: book.description,
+          content: book.content,
           genre: book.genre,
           publishedYear: book.publishedYear,
         });

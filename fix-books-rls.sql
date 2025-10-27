@@ -21,3 +21,4 @@ CREATE POLICY "Enable delete for all users" ON books
 -- 완료! 이제 Admin 페이지에서 배포 가능합니다
 -- ============================================
 
+

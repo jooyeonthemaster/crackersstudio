@@ -2,7 +2,6 @@
 
 import { Book } from '@/types';
 import { BookCard } from './BookCard';
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -13,27 +12,16 @@ interface BookGridProps {
 }
 
 export function BookGrid({ books }: BookGridProps) {
-  const { currentBook, playBook, isPlaying, currentTime, duration, seekTo } = useAudioPlayer();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
-  useEffect(() => {
-    if (currentBook) {
-      setShowModal(true);
-    }
-  }, [currentBook]);
-
-  const closeModal = () => {
-    setShowModal(false);
-  };
 
   return (
     <>
       <Header />
-      
+
       <AnimatePresence>
         {isLoaded && (
           <motion.div
@@ -58,11 +46,11 @@ export function BookGrid({ books }: BookGridProps) {
                 <div className="absolute inset-0 z-20 pointer-events-none">
                   <motion.div
                     className="absolute top-20 left-10 text-4xl"
-                    animate={{ 
+                    animate={{
                       y: [0, -20, 0],
                       rotate: [0, 10, 0]
                     }}
-                    transition={{ 
+                    transition={{
                       duration: 3,
                       repeat: Infinity,
                       ease: "easeInOut"
@@ -72,11 +60,11 @@ export function BookGrid({ books }: BookGridProps) {
                   </motion.div>
                   <motion.div
                     className="absolute top-32 right-16 text-3xl"
-                    animate={{ 
+                    animate={{
                       y: [0, -15, 0],
                       rotate: [0, -10, 0]
                     }}
-                    transition={{ 
+                    transition={{
                       duration: 2.5,
                       repeat: Infinity,
                       ease: "easeInOut",
@@ -87,11 +75,11 @@ export function BookGrid({ books }: BookGridProps) {
                   </motion.div>
                   <motion.div
                     className="absolute bottom-32 left-20 text-3xl"
-                    animate={{ 
+                    animate={{
                       y: [0, -10, 0],
                       rotate: [0, 15, 0]
                     }}
-                    transition={{ 
+                    transition={{
                       duration: 2.8,
                       repeat: Infinity,
                       ease: "easeInOut",
@@ -102,11 +90,11 @@ export function BookGrid({ books }: BookGridProps) {
                   </motion.div>
                   <motion.div
                     className="absolute bottom-40 right-24 text-2xl"
-                    animate={{ 
+                    animate={{
                       y: [0, -12, 0],
                       rotate: [0, -12, 0]
                     }}
-                    transition={{ 
+                    transition={{
                       duration: 2.3,
                       repeat: Infinity,
                       ease: "easeInOut",
@@ -124,12 +112,12 @@ export function BookGrid({ books }: BookGridProps) {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 1, delay: 0.3, type: "spring", bounce: 0.4 }}
               >
-                <motion.div 
+                <motion.div
                   className="mb-8"
-                  animate={{ 
+                  animate={{
                     scale: [1, 1.05, 1]
                   }}
-                  transition={{ 
+                  transition={{
                     duration: 2,
                     repeat: Infinity,
                     ease: "easeInOut"
@@ -174,7 +162,7 @@ export function BookGrid({ books }: BookGridProps) {
                   transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
                   viewport={{ once: true }}
                 >
-                  <motion.h2 
+                  <motion.h2
                     className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 inline-block"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
@@ -185,14 +173,14 @@ export function BookGrid({ books }: BookGridProps) {
                     </span>
                     <span className="inline-block">🎨</span>
                   </motion.h2>
-                  <motion.p 
+                  <motion.p
                     className="text-lg text-gray-700 font-medium bg-white/80 backdrop-blur-sm rounded-full px-6 py-2 inline-block shadow-sm border-2 border-yellow-200"
                     initial={{ scale: 0 }}
                     whileInView={{ scale: 1 }}
                     transition={{ delay: 0.3, type: "spring", bounce: 0.5 }}
                     viewport={{ once: true }}
                   >
-                    ✨ 캐릭터를 클릭하여 음성을 들어보세요 ✨
+                    ✨ 캐릭터를 클릭하여 스토리를 확인하세요 ✨
                   </motion.p>
                 </motion.div>
 
@@ -216,185 +204,13 @@ export function BookGrid({ books }: BookGridProps) {
                     >
                       <BookCard
                         book={book}
-                        onPlay={playBook}
-                        onShowPopup={() => {}}
-                        isCurrentlyPlaying={currentBook?.id === book.id && isPlaying}
+                        isCurrentlyPlaying={false}
                       />
                     </motion.div>
                   ))}
                 </motion.div>
               </div>
             </section>
-
-            {/* 오디오 플레이어 - 화면 중앙 정사각형 모달 🎧 */}
-            <AnimatePresence>
-              {currentBook && showModal && (
-                <>
-                  {/* 배경 오버레이 */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-                    onClick={closeModal}
-                  />
-
-                  {/* 정사각형 플레이어 모달 */}
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
-                    className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 pointer-events-none"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <motion.div
-                      className="bg-white rounded-2xl sm:rounded-[3rem] shadow-2xl border-2 sm:border-4 border-yellow-300 w-full max-w-[95vw] sm:max-w-[500px] md:max-w-[600px] max-h-[90vh] overflow-y-auto relative pointer-events-auto"
-                      animate={{
-                        boxShadow: isPlaying
-                          ? ["0 25px 80px rgba(251, 191, 36, 0.4)", "0 30px 100px rgba(251, 191, 36, 0.6)", "0 25px 80px rgba(251, 191, 36, 0.4)"]
-                          : "0 25px 80px rgba(0, 0, 0, 0.3)"
-                      }}
-                      transition={{ duration: 2, repeat: isPlaying ? Infinity : 0 }}
-                    >
-                      {/* 헤더 */}
-                      <div className="bg-gradient-to-r from-yellow-300 via-green-300 to-yellow-300 px-3 py-3 sm:px-8 sm:py-6 flex justify-between items-center relative overflow-hidden">
-                        {/* 귀여운 배경 애니메이션 */}
-                        {isPlaying && (
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                            animate={{ x: ['-100%', '100%'] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                          />
-                        )}
-                        <div className="flex items-center gap-2 sm:gap-4 relative z-10">
-                          <span className="text-2xl sm:text-4xl">
-                            🎵
-                          </span>
-                          <span className="font-bold text-gray-800 text-sm sm:text-2xl">✨ Now Playing ✨</span>
-                        </div>
-                        {isPlaying && (
-                          <div className="flex items-center gap-1 sm:gap-2 relative z-10">
-                            <motion.span
-                              className="inline-block w-2 h-2 sm:w-4 sm:h-4 rounded-full bg-white shadow-lg"
-                              animate={{ scale: [1, 1.3, 1] }}
-                              transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
-                            />
-                            <motion.span
-                              className="inline-block w-2 h-2 sm:w-4 sm:h-4 rounded-full bg-white shadow-lg"
-                              animate={{ scale: [1, 1.3, 1] }}
-                              transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-                            />
-                            <motion.span
-                              className="inline-block w-2 h-2 sm:w-4 sm:h-4 rounded-full bg-white shadow-lg"
-                              animate={{ scale: [1, 1.3, 1] }}
-                              transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 메인 콘텐츠 */}
-                      <div className="p-4 sm:p-6 md:p-8 bg-gradient-to-b from-white to-yellow-50 flex flex-col justify-center gap-3 sm:gap-6">
-                        {/* 캐릭터 이미지 */}
-                        <div className="flex items-center justify-center">
-                          <motion.div
-                            className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border-2 sm:border-3 border-yellow-200"
-                            whileHover={{ scale: 1.05 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                          >
-                            <Image
-                              src={currentBook.coverImage}
-                              alt={currentBook.title}
-                              fill
-                              className="object-cover"
-                              unoptimized
-                            />
-                          </motion.div>
-                        </div>
-
-                        {/* 재생 컨트롤 */}
-                        <div className="space-y-4">
-                          <div className="text-center">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                              {currentBook.title}
-                            </h3>
-                            <p className="text-base text-gray-600 font-medium">
-                              {currentBook.author}
-                            </p>
-                          </div>
-
-                          {/* 재생 버튼 & 시간 */}
-                          <div className="flex items-center justify-between px-2">
-                            <motion.button
-                              onClick={() => playBook(currentBook)}
-                              className="group"
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <motion.div
-                                className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 via-yellow-300 to-green-400 flex items-center justify-center shadow-xl relative overflow-hidden"
-                                transition={{ type: "spring", stiffness: 400 }}
-                              >
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <motion.span
-                                  className="text-3xl text-white relative z-10"
-                                  animate={{ scale: isPlaying ? [1, 1.2, 1] : 1 }}
-                                  transition={{ duration: 0.5, repeat: isPlaying ? Infinity : 0 }}
-                                >
-                                  {isPlaying ? '⏸' : '▶️'}
-                                </motion.span>
-                              </motion.div>
-                            </motion.button>
-
-                            <div className="text-right bg-white/80 backdrop-blur-sm rounded-2xl px-4 py-2 border-2 border-yellow-200 shadow-lg">
-                              <div className="text-xl text-gray-700 font-bold font-mono">
-                                {Math.floor(currentTime / 60)}:{String(Math.floor(currentTime % 60)).padStart(2, '0')}
-                              </div>
-                              <div className="text-xs text-gray-500 font-medium">
-                                / {Math.floor(duration / 60)}:{String(Math.floor(duration % 60)).padStart(2, '0')}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* 프로그레스 바 */}
-                          <div
-                            className="relative h-3 bg-gradient-to-r from-yellow-100 to-green-100 rounded-full overflow-hidden cursor-pointer hover:h-4 transition-all shadow-inner border-2 border-yellow-200"
-                            onClick={(e) => {
-                              if (duration > 0) {
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                const clickX = e.clientX - rect.left;
-                                const percentage = clickX / rect.width;
-                                const newTime = percentage * duration;
-                                seekTo(newTime);
-                              }
-                            }}
-                          >
-                            <motion.div
-                              className="absolute inset-y-0 left-0 bg-gradient-to-r from-yellow-400 via-green-400 to-yellow-400 rounded-full shadow-lg"
-                              initial={{ width: 0 }}
-                              animate={{
-                                width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%'
-                              }}
-                              transition={{ duration: 0.2 }}
-                            />
-                            {/* 귀여운 진행 표시 점 */}
-                            {duration > 0 && (
-                              <motion.div
-                                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white rounded-full shadow-xl border-2 border-yellow-400"
-                                style={{ left: `${(currentTime / duration) * 100}%` }}
-                                animate={{ scale: isPlaying ? [1, 1.2, 1] : 1 }}
-                                transition={{ duration: 0.6, repeat: isPlaying ? Infinity : 0 }}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

@@ -5,6 +5,7 @@ export interface Book {
   coverImage: string;
   audioFile: string;
   description?: string;
+  content?: string;
   genre?: string;
   publishedYear?: number;
   isPlaying?: boolean;
