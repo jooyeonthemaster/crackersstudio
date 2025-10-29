@@ -3,14 +3,31 @@
 import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import ResizableImageExtension from 'tiptap-extension-resize-image';
 import Link from '@tiptap/extension-link';
 import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import Placeholder from '@tiptap/extension-placeholder';
+import TextAlign from '@tiptap/extension-text-align';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import Highlight from '@tiptap/extension-highlight';
+import Youtube from '@tiptap/extension-youtube';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import Underline from '@tiptap/extension-underline';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import Subscript from '@tiptap/extension-subscript';
+import Superscript from '@tiptap/extension-superscript';
+import { common, createLowlight } from 'lowlight';
 import EditorToolbar from './EditorToolbar';
+import { Section } from './extensions/Section';
+import { FontSize } from './extensions/FontSize';
+
+// Syntax highlighting 설정
+const lowlight = createLowlight(common);
 
 interface CharacterEditorProps {
   content?: string;
@@ -30,20 +47,42 @@ export default function CharacterEditor({
         heading: {
           levels: [1, 2, 3],
         },
+        codeBlock: false, // CodeBlockLowlight 사용을 위해 비활성화
       }),
-      Image.configure({
+      // 텍스트 스타일링
+      Underline,
+      TextStyle,
+      FontSize,
+      Color,
+      Highlight.configure({
+        multicolor: true,
+        HTMLAttributes: {
+          class: 'editor-highlight',
+        },
+      }),
+      Subscript,
+      Superscript,
+      // 텍스트 정렬
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right', 'justify'],
+      }),
+      // 이미지 (리사이즈 가능)
+      ResizableImageExtension.configure({
         inline: false,
         allowBase64: false,
         HTMLAttributes: {
-          class: 'editor-image rounded-xl shadow-lg my-4 mx-auto max-w-full',
+          class: 'editor-image rounded-xl shadow-lg my-4 mx-auto',
         },
       }),
+      // 링크
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
           class: 'editor-link text-yellow-600 underline hover:text-yellow-700',
         },
       }),
+      // 테이블
       Table.configure({
         resizable: true,
         HTMLAttributes: {
@@ -61,9 +100,39 @@ export default function CharacterEditor({
           class: 'border border-yellow-300 px-4 py-3 bg-yellow-50 font-bold text-gray-800',
         },
       }),
+      // 코드 블록 (Syntax Highlighting)
+      CodeBlockLowlight.configure({
+        lowlight,
+        HTMLAttributes: {
+          class: 'editor-code-block bg-gray-900 text-gray-100 rounded-lg p-4 my-4 overflow-x-auto',
+        },
+      }),
+      // Task List (체크리스트)
+      TaskList.configure({
+        HTMLAttributes: {
+          class: 'editor-task-list',
+        },
+      }),
+      TaskItem.configure({
+        HTMLAttributes: {
+          class: 'editor-task-item flex items-start gap-2',
+        },
+        nested: true,
+      }),
+      // Youtube 임베드
+      Youtube.configure({
+        width: 640,
+        height: 360,
+        HTMLAttributes: {
+          class: 'editor-youtube rounded-xl my-4 mx-auto',
+        },
+      }),
+      // 플레이스홀더
       Placeholder.configure({
         placeholder,
       }),
+      // 커스텀 섹션
+      Section,
     ],
     content: content || '',
     editorProps: {
@@ -93,9 +162,9 @@ export default function CharacterEditor({
   }
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-yellow-200 shadow-lg overflow-hidden">
+    <div className="bg-white rounded-2xl border-2 border-yellow-200 shadow-lg">
       <EditorToolbar editor={editor} />
-      <div className="border-t-2 border-yellow-100">
+      <div className="border-t-2 border-yellow-100 overflow-hidden rounded-b-2xl">
         <EditorContent editor={editor} />
       </div>
     </div>

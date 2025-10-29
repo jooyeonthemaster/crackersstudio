@@ -11,9 +11,8 @@ import { Book } from '@/types';
 import Link from 'next/link';
 
 export default function AdminPage() {
-  const { books, isLoaded, addBook, updateBook, deleteBook, reorderBooks, resetToDefault, deployToSupabase } = useBookManagement({ mode: 'admin' });
+  const { books, isLoaded, addBook, deleteBook, reorderBooks, resetToDefault, deployToSupabase } = useBookManagement({ mode: 'admin' });
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [isDeploying, setIsDeploying] = useState(false);
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -29,22 +28,14 @@ export default function AdminPage() {
 
   const handleSave = (bookData: Omit<Book, 'id'> | Book) => {
     if ('id' in bookData) {
-      // 수정
-      updateBook(bookData.id, bookData);
+      // 수정 (사용 안 함 - 별도 페이지로 이동)
     } else {
       // 추가
       addBook(bookData);
     }
-    setEditingBook(null);
-  };
-
-  const handleEdit = (book: Book) => {
-    setEditingBook(book);
-    setIsModalOpen(true);
   };
 
   const handleAdd = () => {
-    setEditingBook(null);
     setIsModalOpen(true);
   };
 
@@ -172,7 +163,6 @@ export default function AdminPage() {
                       key={book.id}
                       book={book}
                       onDelete={deleteBook}
-                      onEdit={handleEdit}
                     />
                   ))}
                 </div>
@@ -182,15 +172,12 @@ export default function AdminPage() {
         </motion.div>
       </div>
 
-      {/* 모달 */}
+      {/* 모달 (새 카드 추가용만 사용) */}
       <BookFormModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingBook(null);
-        }}
+        onClose={() => setIsModalOpen(false)}
         onSave={handleSave}
-        editBook={editingBook}
+        editBook={null}
       />
     </div>
   );

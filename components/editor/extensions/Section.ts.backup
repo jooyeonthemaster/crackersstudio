@@ -1,0 +1,217 @@
+import { Node, mergeAttributes } from '@tiptap/core';
+
+export interface SectionOptions {
+  HTMLAttributes: Record<string, string>;
+}
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    section: {
+      setSection: () => ReturnType;
+      toggleSection: () => ReturnType;
+    };
+  }
+}
+
+export const Section = Node.create<SectionOptions>({
+  name: 'section',
+
+  group: 'block',
+
+  content: 'block+',
+
+  defining: true,
+
+  isolating: true,
+
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+    };
+  },
+
+  addAttributes() {
+    return {
+      title: {
+        default: '새 섹션',
+        parseHTML: element => element.getAttribute('data-section-title'),
+        renderHTML: attributes => {
+          return {
+            'data-section-title': attributes.title,
+          };
+        },
+      },
+      collapsed: {
+        default: false,
+        parseHTML: element => element.getAttribute('data-collapsed') === 'true',
+        renderHTML: attributes => {
+          return {
+            'data-collapsed': String(attributes.collapsed),
+          };
+        },
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-section]',
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'div',
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        'data-section': 'true',
+        class: 'editor-section',
+      }),
+      [
+        'div',
+        {
+          class: 'editor-section-header',
+          contenteditable: 'false',
+        },
+        [
+          'div',
+          {
+            class: 'editor-section-title-wrapper',
+          },
+          [
+            'span',
+            {
+              class: 'editor-section-icon',
+            },
+            '📂',
+          ],
+          [
+            'input',
+            {
+              class: 'editor-section-title',
+              type: 'text',
+              value: HTMLAttributes.title || '새 섹션',
+              placeholder: '섹션 제목을 입력하세요',
+            },
+          ],
+        ],
+      ],
+      [
+        'div',
+        {
+          class: 'editor-section-content',
+        },
+        0,
+      ],
+    ];
+  },
+
+  addNodeView() {
+    return ({ node, getPos, editor }) => {
+      const dom = document.createElement('div');
+      dom.setAttribute('data-section', 'true');
+      dom.className = 'editor-section';
+      dom.setAttribute('data-section-title', node.attrs.title);
+
+      const header = document.createElement('div');
+      header.className = 'editor-section-header';
+      header.contentEditable = 'false';
+
+      const titleWrapper = document.createElement('div');
+      titleWrapper.className = 'editor-section-title-wrapper';
+
+      const icon = document.createElement('span');
+      icon.className = 'editor-section-icon';
+      icon.textContent = '📂';
+
+      const input = document.createElement('input');
+      input.className = 'editor-section-title';
+      input.type = 'text';
+      input.value = node.attrs.title || '새 섹션';
+      input.placeholder = '섹션 제목을 입력하세요';
+
+      // input 이벤트 처리: 제목 업데이트
+      input.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        if (typeof getPos === 'function') {
+          const pos = getPos();
+          if (pos !== undefined) {
+            editor.view.dispatch(
+              editor.view.state.tr.setNodeMarkup(pos, undefined, {
+                ...node.attrs,
+                title: target.value,
+              })
+            );
+          }
+        }
+      });
+
+      // 키보드 이벤트 전파 방지: 백스페이스, 삭제 등이 에디터로 전달되지 않도록
+      input.addEventListener('keydown', (e) => {
+        e.stopPropagation();
+      });
+
+      // 포커스 이벤트 처리
+      input.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+      });
+
+      titleWrapper.appendChild(icon);
+      titleWrapper.appendChild(input);
+      header.appendChild(titleWrapper);
+
+      const content = document.createElement('div');
+      content.className = 'editor-section-content';
+
+      dom.appendChild(header);
+      dom.appendChild(content);
+
+      return {
+        dom,
+        contentDOM: content,
+        update: (updatedNode) => {
+          if (updatedNode.type.name !== 'section') return false;
+          // input이 focus되어 있지 않을 때만 value 업데이트 (사용자 입력 중에는 덮어쓰지 않음)
+          if (document.activeElement !== input) {
+            input.value = updatedNode.attrs.title;
+          }
+          dom.setAttribute('data-section-title', updatedNode.attrs.title);
+          return true;
+        },
+      };
+    };
+  },
+
+  addCommands() {
+    return {
+      setSection:
+        () =>
+        ({ commands, state }) => {
+          // 현재 커서가 섹션 안에 있는지 확인
+          const { $from } = state.selection;
+          let isInSection = false;
+
+          // 부모 노드들을 순회하면서 섹션이 있는지 확인
+          for (let depth = $from.depth; depth > 0; depth--) {
+            if ($from.node(depth).type.name === 'section') {
+              isInSection = true;
+              break;
+            }
+          }
+
+          // 섹션 안에 있으면 섹션 생성하지 않음 (중첩 방지)
+          if (isInSection) {
+            return false;
+          }
+
+          return commands.wrapIn(this.name, { title: '새 섹션' });
+        },
+      toggleSection:
+        () =>
+        ({ commands }) => {
+          return commands.toggleWrap(this.name);
+        },
+    };
+  },
+});

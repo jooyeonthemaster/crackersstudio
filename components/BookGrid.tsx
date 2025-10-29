@@ -137,9 +137,9 @@ export function BookGrid({ books }: BookGridProps) {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.6, type: "spring" }}
-                  className="text-xl md:text-2xl text-gray-800 font-bold bg-gradient-to-r from-yellow-600 via-green-600 to-yellow-600 bg-clip-text text-transparent"
+                  className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-800 font-bold bg-gradient-to-r from-yellow-600 via-green-600 to-yellow-600 bg-clip-text text-transparent"
                 >
-                  ✨ 특이한 동물들의 특별한 이야기 ✨
+                  특이한 동물들의 특별한 이야기
                 </motion.p>
               </motion.div>
             </section>
@@ -163,24 +163,22 @@ export function BookGrid({ books }: BookGridProps) {
                   viewport={{ once: true }}
                 >
                   <motion.h2
-                    className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 inline-block"
+                    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <span className="inline-block">🎵</span>
-                    <span className="mx-3 bg-gradient-to-r from-yellow-500 via-green-500 to-yellow-500 bg-clip-text text-transparent">
-                      캐릭터 갤러리
+                    <span className="bg-gradient-to-r from-yellow-500 via-green-500 to-yellow-500 bg-clip-text text-transparent">
+                      굿즈 갤러리
                     </span>
-                    <span className="inline-block">🎨</span>
                   </motion.h2>
                   <motion.p
-                    className="text-lg text-gray-700 font-medium bg-white/80 backdrop-blur-sm rounded-full px-6 py-2 inline-block shadow-sm border-2 border-yellow-200"
+                    className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 font-medium bg-white/80 backdrop-blur-sm rounded-full px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 shadow-sm border-2 border-yellow-200 mx-auto w-fit"
                     initial={{ scale: 0 }}
                     whileInView={{ scale: 1 }}
                     transition={{ delay: 0.3, type: "spring", bounce: 0.5 }}
                     viewport={{ once: true }}
                   >
-                    ✨ 캐릭터를 클릭하여 스토리를 확인하세요 ✨
+                    각 굿즈를 클릭하여 상세 정보를 확인하세요
                   </motion.p>
                 </motion.div>
 

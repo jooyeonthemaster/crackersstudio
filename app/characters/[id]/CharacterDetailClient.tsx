@@ -1,11 +1,14 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { Book } from '@/types';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import CollapsibleSection from '@/components/CollapsibleSection';
+import { parseSections } from '@/utils/parseSections';
 
 interface CharacterDetailClientProps {
   character: Book;
@@ -13,8 +16,49 @@ interface CharacterDetailClientProps {
 
 export default function CharacterDetailClient({ character }: CharacterDetailClientProps) {
   const { playBook, isPlaying, currentTime, duration, seekTo, currentBook } = useAudioPlayer();
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const isCurrentPlaying = currentBook?.id === character.id && isPlaying;
+
+  // 콘텐츠를 섹션과 일반 콘텐츠로 파싱
+  const { sections, regularContent } = parseSections(character.content || '');
+
+  // 디버깅: 파싱 결과 확인
+  console.log('📂 섹션 파싱 결과:', {
+    totalSections: sections.length,
+    sections,
+    hasRegularContent: !!regularContent
+  });
+
+  // 테이블을 스크롤 가능한 wrapper로 감싸기 + th를 td로 변환 (접근성)
+  useEffect(() => {
+    if (contentRef.current) {
+      const tables = contentRef.current.querySelectorAll('table');
+      tables.forEach((table) => {
+        // th를 td로 변환 (스크린리더 접근성 향상)
+        const thElements = table.querySelectorAll('th');
+        thElements.forEach((th) => {
+          const td = document.createElement('td');
+          // th의 모든 속성 복사
+          Array.from(th.attributes).forEach((attr) => {
+            td.setAttribute(attr.name, attr.value);
+          });
+          // 내용 복사
+          td.innerHTML = th.innerHTML;
+          // th를 td로 교체
+          th.parentNode?.replaceChild(td, th);
+        });
+
+        // 이미 wrapper로 감싸져 있는지 확인
+        if (!table.parentElement?.classList.contains('table-wrapper')) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'table-wrapper overflow-x-auto my-4';
+          table.parentNode?.insertBefore(wrapper, table);
+          wrapper.appendChild(table);
+        }
+      });
+    }
+  }, [regularContent, sections]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-green-50 pt-24">
@@ -76,22 +120,17 @@ export default function CharacterDetailClient({ character }: CharacterDetailClie
 
             {/* 정보 */}
             <div className="flex-1">
-              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-3 sm:mb-4">
                 {character.title}
               </h1>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-2xl text-gray-600 font-medium">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <span className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 font-medium">
                   {character.author}
                 </span>
-                {character.genre && (
-                  <span className="px-4 py-2 bg-yellow-200 text-yellow-800 rounded-full text-sm font-bold">
-                    {character.genre}
-                  </span>
-                )}
               </div>
 
               {character.description && (
-                <p className="text-lg text-gray-700 leading-relaxed mb-8">
+                <p className="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed mb-6 sm:mb-8">
                   {character.description}
                 </p>
               )}
@@ -166,10 +205,10 @@ export default function CharacterDetailClient({ character }: CharacterDetailClie
                   />
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="font-mono text-gray-600 font-medium">
+                  <span className="font-mono text-gray-600 font-medium" aria-hidden="true">
                     {Math.floor(currentTime / 60)}:{String(Math.floor(currentTime % 60)).padStart(2, '0')}
                   </span>
-                  <span className="font-mono text-gray-500">
+                  <span className="font-mono text-gray-500" aria-hidden="true">
                     {Math.floor(duration / 60)}:{String(Math.floor(duration % 60)).padStart(2, '0')}
                   </span>
                 </div>
@@ -183,26 +222,65 @@ export default function CharacterDetailClient({ character }: CharacterDetailClie
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
+          ref={contentRef}
         >
           {character.content ? (
-            <article className="bg-white rounded-3xl p-8 md:p-12 shadow-xl border-2 border-yellow-200">
-              <div
-                className="prose prose-lg prose-yellow max-w-none
-                  prose-headings:text-gray-900 prose-headings:font-bold
-                  prose-h1:text-4xl prose-h1:mb-6 prose-h1:mt-8
-                  prose-h2:text-3xl prose-h2:mb-5 prose-h2:mt-7
-                  prose-h3:text-2xl prose-h3:mb-4 prose-h3:mt-6
-                  prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
-                  prose-a:text-yellow-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline
-                  prose-strong:text-gray-900 prose-strong:font-bold
-                  prose-ul:my-6 prose-ol:my-6
-                  prose-li:text-gray-700 prose-li:my-2
-                  prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-8
-                  prose-blockquote:border-l-4 prose-blockquote:border-yellow-400 prose-blockquote:bg-yellow-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-xl
-                "
-                dangerouslySetInnerHTML={{ __html: character.content }}
-              />
-            </article>
+            <div className="space-y-6">
+              {/* 일반 콘텐츠 (섹션이 아닌 부분) */}
+              {regularContent && (
+                <article className="bg-white rounded-3xl p-8 md:p-12 shadow-xl border-2 border-yellow-200">
+                  <div
+                    className="prose prose-lg prose-yellow max-w-none
+                      prose-headings:text-gray-900 prose-headings:font-bold
+                      prose-h1:text-4xl prose-h1:mb-6 prose-h1:mt-8
+                      prose-h2:text-3xl prose-h2:mb-5 prose-h2:mt-7
+                      prose-h3:text-2xl prose-h3:mb-4 prose-h3:mt-6
+                      prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
+                      prose-a:text-yellow-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+                      prose-strong:text-gray-900 prose-strong:font-bold
+                      prose-ul:my-6 prose-ol:my-6
+                      prose-li:text-gray-700 prose-li:my-2
+                      prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-8
+                      prose-blockquote:border-l-4 prose-blockquote:border-yellow-400 prose-blockquote:bg-yellow-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-xl
+                    "
+                    dangerouslySetInnerHTML={{ __html: regularContent }}
+                  />
+                </article>
+              )}
+
+              {/* 접을 수 있는 섹션들 */}
+              {sections.map((section, index) => (
+                <CollapsibleSection key={index} title={section.title} defaultOpen={index === 0}>
+                  <div
+                    className="prose prose-lg prose-yellow max-w-none
+                      prose-headings:text-gray-900 prose-headings:font-bold
+                      prose-h1:text-4xl prose-h1:mb-6 prose-h1:mt-8
+                      prose-h2:text-3xl prose-h2:mb-5 prose-h2:mt-7
+                      prose-h3:text-2xl prose-h3:mb-4 prose-h3:mt-6
+                      prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
+                      prose-a:text-yellow-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+                      prose-strong:text-gray-900 prose-strong:font-bold
+                      prose-ul:my-6 prose-ol:my-6
+                      prose-li:text-gray-700 prose-li:my-2
+                      prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-8
+                      prose-blockquote:border-l-4 prose-blockquote:border-yellow-400 prose-blockquote:bg-yellow-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-xl
+                    "
+                    dangerouslySetInnerHTML={{ __html: section.content }}
+                  />
+                </CollapsibleSection>
+              ))}
+
+              {/* 섹션과 일반 콘텐츠 모두 없는 경우 */}
+              {!regularContent && sections.length === 0 && (
+                <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-2 border-yellow-200">
+                  <div className="text-7xl mb-6">📝</div>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-3">스토리가 아직 작성되지 않았습니다</h2>
+                  <p className="text-gray-600">
+                    관리자 페이지에서 캐릭터의 이야기를 작성해주세요!
+                  </p>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-2 border-yellow-200">
               <div className="text-7xl mb-6">📝</div>

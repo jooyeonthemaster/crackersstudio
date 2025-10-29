@@ -186,8 +186,8 @@ export function BookCard({ book, isCurrentlyPlaying = false }: BookCardProps) {
         {/* 귀여운 캐릭터 정보 💕 */}
         <div className="p-4 bg-gradient-to-b from-white to-yellow-50 border-t-2 border-yellow-100">
           {/* 제목 */}
-          <motion.h3 
-            className="font-bold text-gray-900 text-base mb-2 leading-tight text-center"
+          <motion.h3
+            className="font-bold text-gray-900 text-xs sm:text-sm md:text-base mb-1.5 sm:mb-2 leading-tight text-center"
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
@@ -195,37 +195,33 @@ export function BookCard({ book, isCurrentlyPlaying = false }: BookCardProps) {
           </motion.h3>
 
           {/* 작가 */}
-          <div className="text-xs text-gray-600 text-center mb-3 font-medium">
+          <div className="text-[10px] sm:text-xs text-gray-600 text-center mb-2 sm:mb-3 font-medium">
             {book.author}
           </div>
 
-          {/* 귀여운 상태 표시 */}
-          <div className="flex items-center justify-center gap-2">
-            <motion.span 
-              className={`inline-block w-3 h-3 rounded-full ${
-                isCurrentlyPlaying 
-                  ? 'bg-gradient-to-r from-yellow-400 to-green-400' 
-                  : 'bg-gray-300'
-              }`}
-              animate={isCurrentlyPlaying ? { 
-                scale: [1, 1.3, 1],
-                boxShadow: [
-                  "0 0 0 0 rgba(251, 191, 36, 0.4)",
-                  "0 0 0 8px rgba(251, 191, 36, 0)",
-                  "0 0 0 0 rgba(251, 191, 36, 0)"
-                ]
-              } : {}}
-              transition={isCurrentlyPlaying ? { 
-                duration: 1.5, 
-                repeat: Infinity 
-              } : {}}
-            />
-            <span className={`text-xs font-bold ${
-              isCurrentlyPlaying ? 'text-yellow-600' : 'text-gray-500'
-            }`}>
-              {isCurrentlyPlaying ? '🎵 재생 중' : '💤 대기'}
-            </span>
-          </div>
+          {/* 재생 중 상태 표시 */}
+          {isCurrentlyPlaying && (
+            <div className="flex items-center justify-center gap-2">
+              <motion.span
+                className="inline-block w-3 h-3 rounded-full bg-gradient-to-r from-yellow-400 to-green-400"
+                animate={{
+                  scale: [1, 1.3, 1],
+                  boxShadow: [
+                    "0 0 0 0 rgba(251, 191, 36, 0.4)",
+                    "0 0 0 8px rgba(251, 191, 36, 0)",
+                    "0 0 0 0 rgba(251, 191, 36, 0)"
+                  ]
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity
+                }}
+              />
+              <span className="text-[10px] sm:text-xs font-bold text-yellow-600">
+                🎵 재생 중
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

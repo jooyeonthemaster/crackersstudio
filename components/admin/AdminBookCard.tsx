@@ -5,14 +5,15 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useRouter } from 'next/navigation';
 
 interface AdminBookCardProps {
   book: Book;
   onDelete: (id: number) => void;
-  onEdit: (book: Book) => void;
 }
 
-export function AdminBookCard({ book, onDelete, onEdit }: AdminBookCardProps) {
+export function AdminBookCard({ book, onDelete }: AdminBookCardProps) {
+  const router = useRouter();
   const {
     attributes,
     listeners,
@@ -26,6 +27,10 @@ export function AdminBookCard({ book, onDelete, onEdit }: AdminBookCardProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+  };
+
+  const handleEdit = () => {
+    router.push(`/admin/edit/${book.id}`);
   };
 
   return (
@@ -59,7 +64,7 @@ export function AdminBookCard({ book, onDelete, onEdit }: AdminBookCardProps) {
 
       {/* 편집 버튼 */}
       <motion.button
-        onClick={() => onEdit(book)}
+        onClick={handleEdit}
         className="absolute top-12 right-2 z-30 bg-blue-500 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-colors"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
@@ -96,5 +101,6 @@ export function AdminBookCard({ book, onDelete, onEdit }: AdminBookCardProps) {
     </motion.div>
   );
 }
+
 
 
