@@ -47,9 +47,9 @@ export default function RootLayout({
               <div>
                 <h3 className="font-bold text-lg mb-4">About Us</h3>
                 <div className="space-y-2 text-sm">
-                  <a href="#business" className="block hover:text-yellow-300 transition-colors">Business</a>
-                  <a href="#works" className="block hover:text-yellow-300 transition-colors">Works</a>
-                  <a href="#history" className="block hover:text-yellow-300 transition-colors">History</a>
+                  <a href="https://crackersstudio.com/business" target="_blank" rel="noopener noreferrer" className="block hover:text-yellow-300 transition-colors">Business</a>
+                  <a href="https://crackersstudio.com/works" target="_blank" rel="noopener noreferrer" className="block hover:text-yellow-300 transition-colors">Works</a>
+                  <a href="https://crackersstudio.com/history" target="_blank" rel="noopener noreferrer" className="block hover:text-yellow-300 transition-colors">History</a>
                 </div>
               </div>
 
@@ -57,18 +57,24 @@ export default function RootLayout({
               <div>
                 <h3 className="font-bold text-lg mb-4">Brand</h3>
                 <div className="space-y-2 text-sm">
-                  <a href="#little-crack" className="block hover:text-yellow-300 transition-colors">Little Crack</a>
+                  <a href="https://crackersstudio.com/characters" target="_blank" rel="noopener noreferrer" className="block hover:text-yellow-300 transition-colors">Little Crack</a>
                 </div>
               </div>
 
               {/* Shop */}
               <div>
                 <h3 className="font-bold text-lg mb-4">Shop</h3>
+                <div className="space-y-2 text-sm">
+                  <a href="https://smartstore.naver.com/littlecrack" target="_blank" rel="noopener noreferrer" className="block hover:text-yellow-300 transition-colors">스마트스토어</a>
+                </div>
               </div>
 
               {/* Contact */}
               <div>
                 <h3 className="font-bold text-lg mb-4">Contact</h3>
+                <div className="space-y-2 text-sm">
+                  <a href="https://crackersstudio.com/contact" target="_blank" rel="noopener noreferrer" className="block hover:text-yellow-300 transition-colors">문의하기</a>
+                </div>
               </div>
             </div>
 

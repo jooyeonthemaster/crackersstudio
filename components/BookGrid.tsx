@@ -42,68 +42,6 @@ export function BookGrid({ books }: BookGridProps) {
                   priority
                   unoptimized
                 />
-                {/* 귀여운 떠다니는 별들 ✨ */}
-                <div className="absolute inset-0 z-20 pointer-events-none">
-                  <motion.div
-                    className="absolute top-20 left-10 text-4xl"
-                    animate={{
-                      y: [0, -20, 0],
-                      rotate: [0, 10, 0]
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    ⭐
-                  </motion.div>
-                  <motion.div
-                    className="absolute top-32 right-16 text-3xl"
-                    animate={{
-                      y: [0, -15, 0],
-                      rotate: [0, -10, 0]
-                    }}
-                    transition={{
-                      duration: 2.5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 0.5
-                    }}
-                  >
-                    🌟
-                  </motion.div>
-                  <motion.div
-                    className="absolute bottom-32 left-20 text-3xl"
-                    animate={{
-                      y: [0, -10, 0],
-                      rotate: [0, 15, 0]
-                    }}
-                    transition={{
-                      duration: 2.8,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 1
-                    }}
-                  >
-                    💫
-                  </motion.div>
-                  <motion.div
-                    className="absolute bottom-40 right-24 text-2xl"
-                    animate={{
-                      y: [0, -12, 0],
-                      rotate: [0, -12, 0]
-                    }}
-                    transition={{
-                      duration: 2.3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 0.3
-                    }}
-                  >
-                    ✨
-                  </motion.div>
-                </div>
               </div>
 
               <motion.div
@@ -146,14 +84,6 @@ export function BookGrid({ books }: BookGridProps) {
 
             {/* Gallery 섹션 - 귀여워진 버전 🎨 */}
             <section id="gallery" className="py-20 px-6 bg-gradient-to-b from-white via-yellow-50/30 to-white relative overflow-hidden">
-              {/* 귀여운 배경 패턴 */}
-              <div className="absolute inset-0 opacity-5">
-                <div className="absolute top-10 left-10 text-6xl">🌈</div>
-                <div className="absolute top-20 right-20 text-6xl">🎵</div>
-                <div className="absolute bottom-20 left-20 text-6xl">🎨</div>
-                <div className="absolute bottom-10 right-10 text-6xl">💕</div>
-              </div>
-
               <div className="max-w-7xl mx-auto relative z-10">
                 <motion.div
                   className="text-center mb-12"

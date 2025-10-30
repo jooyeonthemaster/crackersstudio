@@ -88,13 +88,12 @@ export function BookCard({ book, isCurrentlyPlaying = false }: BookCardProps) {
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-50">
               <div className="text-center p-4">
-                <div className="text-5xl mb-3">🎵</div>
                 <div className="text-sm font-bold text-gray-700">{book.title}</div>
               </div>
             </div>
           )}
 
-          {/* 귀여운 재생 중 표시 🎵 */}
+          {/* 재생 중 표시 */}
           <AnimatePresence>
             {isCurrentlyPlaying && (
               <motion.div
@@ -104,37 +103,37 @@ export function BookCard({ book, isCurrentlyPlaying = false }: BookCardProps) {
                 transition={{ type: "spring", bounce: 0.6 }}
                 className="absolute top-3 right-3 z-20"
               >
-                <motion.div 
+                <motion.div
                   className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-green-400 text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl border-2 border-white"
-                  animate={{ 
+                  animate={{
                     boxShadow: ["0 4px 12px rgba(251, 191, 36, 0.4)", "0 6px 20px rgba(251, 191, 36, 0.6)", "0 4px 12px rgba(251, 191, 36, 0.4)"]
                   }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
                   <div className="flex gap-0.5">
-                    <motion.span 
+                    <motion.span
                       className="inline-block w-1 h-3 bg-white rounded-full"
                       animate={{ height: ["12px", "16px", "12px"] }}
                       transition={{ duration: 0.5, repeat: Infinity }}
                     />
-                    <motion.span 
+                    <motion.span
                       className="inline-block w-1 h-3 bg-white rounded-full"
                       animate={{ height: ["12px", "16px", "12px"] }}
                       transition={{ duration: 0.5, repeat: Infinity, delay: 0.1 }}
                     />
-                    <motion.span 
+                    <motion.span
                       className="inline-block w-1 h-3 bg-white rounded-full"
                       animate={{ height: ["12px", "16px", "12px"] }}
                       transition={{ duration: 0.5, repeat: Infinity, delay: 0.2 }}
                     />
                   </div>
-                  <span className="text-gray-800">재생중 ♪</span>
+                  <span className="text-gray-800">재생중</span>
                 </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* 귀여운 호버 오버레이 ✨ */}
+          {/* 호버 오버레이 */}
           <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/80 via-green-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.5, y: 20 }}
@@ -142,32 +141,21 @@ export function BookCard({ book, isCurrentlyPlaying = false }: BookCardProps) {
               transition={{ duration: 0.3, type: "spring" }}
               className="text-center opacity-0 group-hover:opacity-100"
             >
-              {/* 귀여운 재생 버튼 */}
+              {/* 재생 버튼 */}
               <div className="relative">
-                <motion.div 
+                <motion.div
                   className="w-16 h-16 rounded-full bg-gradient-to-br from-white to-yellow-100 backdrop-blur-sm flex items-center justify-center mb-3 mx-auto shadow-2xl border-4 border-white"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.9 }}
                   transition={{ type: "spring", stiffness: 400 }}
                 >
-                  <motion.span 
-                    className="text-3xl"
+                  <motion.span
+                    className="text-xl font-bold text-gray-800"
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 1, repeat: Infinity }}
                   >
-                    {isCurrentlyPlaying ? '⏸️' : '▶️'}
+                    {isCurrentlyPlaying ? '||' : '▶'}
                   </motion.span>
-                </motion.div>
-                {/* 반짝이는 효과 */}
-                <motion.div
-                  className="absolute -top-1 -right-1 text-xl"
-                  animate={{ 
-                    scale: [1, 1.3, 1],
-                    rotate: [0, 10, 0]
-                  }}
-                  transition={{ duration: 0.8, repeat: Infinity }}
-                >
-                  ✨
                 </motion.div>
               </div>
 
@@ -177,7 +165,7 @@ export function BookCard({ book, isCurrentlyPlaying = false }: BookCardProps) {
                 whileHover={{ scale: 1 }}
                 transition={{ delay: 0.1 }}
               >
-                📖 스토리 보기
+                스토리 보기
               </motion.div>
             </motion.div>
           </div>
@@ -218,7 +206,7 @@ export function BookCard({ book, isCurrentlyPlaying = false }: BookCardProps) {
                 }}
               />
               <span className="text-[10px] sm:text-xs font-bold text-yellow-600">
-                🎵 재생 중
+                재생 중
               </span>
             </div>
           )}

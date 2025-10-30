@@ -127,6 +127,7 @@ export async function updateBook(id: number, updates: {
   content?: string;
   genre?: string;
   publishedYear?: number;
+  display_order?: number;
 }) {
   const dbUpdates: Record<string, string | number | null | undefined> = {};
   if (updates.title) dbUpdates.title = updates.title;
@@ -137,6 +138,7 @@ export async function updateBook(id: number, updates: {
   if (updates.content !== undefined) dbUpdates.content = updates.content;
   if (updates.genre) dbUpdates.genre = updates.genre;
   if (updates.publishedYear) dbUpdates.published_year = updates.publishedYear;
+  if (updates.display_order !== undefined) dbUpdates.display_order = updates.display_order;
 
   const { error } = await supabase
     .from('books')

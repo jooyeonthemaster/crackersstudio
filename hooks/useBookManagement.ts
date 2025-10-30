@@ -88,49 +88,69 @@ export function useBookManagement({ mode = 'admin' }: UseBookManagementOptions =
     saveToStorage(initialBooks);
   };
 
-  // Supabase에 배포 (Admin 전용)
+  // Supabase에 배포 (Admin 전용) - URL 유지를 위해 UPDATE 방식으로 변경!
   const deployToSupabase = async () => {
     if (mode !== 'admin') {
       return { success: false, error: 'Deploy is only available in admin mode' };
     }
 
     try {
-      // 1. 기존 Supabase 데이터 모두 삭제
+      // 1. 기존 Supabase 책들을 Map으로 저장
       const existingBooks = await fetchBooks();
-      for (const book of existingBooks) {
-        const result = await deleteBookDB(book.id);
-        if (!result.success) {
-          console.error('Failed to delete book:', book.id, result.error);
+      const existingBooksMap = new Map(existingBooks.map(b => [b.id, b]));
+
+      // 2. localStorage의 책들을 순회하면서 UPDATE 또는 INSERT
+      for (let i = 0; i < books.length; i++) {
+        const book = books[i];
+
+        if (existingBooksMap.has(book.id)) {
+          // 기존 책이면 UPDATE (ID 유지! → URL 유지!)
+          const result = await updateBookDB(book.id, {
+            title: book.title,
+            author: book.author,
+            coverImage: book.coverImage,
+            audioFile: book.audioFile,
+            description: book.description,
+            content: book.content,
+            genre: book.genre,
+            publishedYear: book.publishedYear,
+            display_order: i + 1,
+          });
+
+          if (!result.success) {
+            console.error('Failed to update book:', book.id, result.error);
+            return { success: false, error: `Failed to update ${book.title}: ${result.error}` };
+          }
+
+          existingBooksMap.delete(book.id); // 처리 완료 표시
+        } else {
+          // 새 책이면 INSERT (새 ID 자동 생성)
+          const result = await createBookDB({
+            title: book.title,
+            author: book.author,
+            coverImage: book.coverImage,
+            audioFile: book.audioFile,
+            description: book.description,
+            content: book.content,
+            genre: book.genre,
+            publishedYear: book.publishedYear,
+          });
+
+          if (result.success && result.data) {
+            // display_order 설정
+            await updateBookDB(result.data.id, { display_order: i + 1 });
+          } else {
+            console.error('Failed to create book:', book.title, result.error);
+            return { success: false, error: `Failed to create ${book.title}: ${result.error}` };
+          }
         }
       }
 
-      // 2. localStorage의 현재 데이터를 순서대로 새로 생성
-      const newBookIds: number[] = [];
-      for (let i = 0; i < books.length; i++) {
-        const book = books[i];
-        const result = await createBookDB({
-          title: book.title,
-          author: book.author,
-          coverImage: book.coverImage,
-          audioFile: book.audioFile,
-          description: book.description,
-          content: book.content,
-          genre: book.genre,
-          publishedYear: book.publishedYear,
-        });
-
-        if (result.success && result.data) {
-          newBookIds.push(result.data.id);
-          
-          // display_order 업데이트
-          const updateData: { display_order: number } = { display_order: i + 1 };
-          await supabase
-            .from('books')
-            .update(updateData as never)
-            .eq('id', result.data.id);
-        } else {
-          console.error('Failed to create book:', book.title, result.error);
-          return { success: false, error: `Failed to create ${book.title}: ${result.error}` };
+      // 3. localStorage에 없는 책들은 Supabase에서 삭제
+      for (const [id] of existingBooksMap) {
+        const result = await deleteBookDB(id);
+        if (!result.success) {
+          console.error('Failed to delete book:', id, result.error);
         }
       }
 

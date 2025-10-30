@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useRouter } from 'next/navigation';
+import { Trash2, Pencil } from 'lucide-react';
 
 interface AdminBookCardProps {
   book: Book;
@@ -58,8 +59,9 @@ export function AdminBookCard({ book, onDelete }: AdminBookCardProps) {
         className="absolute top-2 right-2 z-30 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-colors"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
+        aria-label="삭제"
       >
-        ✕
+        <Trash2 className="w-4 h-4" />
       </motion.button>
 
       {/* 편집 버튼 */}
@@ -68,8 +70,9 @@ export function AdminBookCard({ book, onDelete }: AdminBookCardProps) {
         className="absolute top-12 right-2 z-30 bg-blue-500 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-colors"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
+        aria-label="편집"
       >
-        ✏️
+        <Pencil className="w-4 h-4" />
       </motion.button>
 
       {/* 카드 본체 */}
@@ -101,6 +104,8 @@ export function AdminBookCard({ book, onDelete }: AdminBookCardProps) {
     </motion.div>
   );
 }
+
+
 
 
 
