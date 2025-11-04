@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase, uploadImage, uploadAudio } from '@/lib/supabase';
 import CharacterEditor from '@/components/editor/CharacterEditor';
 import { X, Save } from 'lucide-react';
+import Image from 'next/image';
 
 interface BookDatabase {
   id: number;
@@ -38,6 +39,13 @@ export default function AdminEditPage() {
     published_year: '',
   });
 
+  // 파일 업로드 관련 상태
+  const [imagePreview, setImagePreview] = useState('');
+  const [audioPreview, setAudioPreview] = useState('');
+  const [audioFileName, setAudioFileName] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
+
   useEffect(() => {
     loadBook();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -68,12 +76,76 @@ export default function AdminEditPage() {
         genre: bookData.genre || 'Character',
         published_year: bookData.published_year?.toString() || '',
       });
+      // 미리보기 상태 초기화
+      setImagePreview(bookData.cover_image || '');
+      setAudioPreview(bookData.audio_file || '');
+      setAudioFileName(bookData.audio_file ? bookData.audio_file.split('/').pop() || '' : '');
     } catch (error) {
       console.error('책 로딩 실패:', error);
       alert('책을 불러오는데 실패했습니다.');
       router.push('/admin');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 미리보기
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // 실제 업로드
+      setIsUploading(true);
+      setUploadStatus('이미지 업로드 중...');
+
+      const { url, error } = await uploadImage(file);
+
+      setIsUploading(false);
+
+      if (error) {
+        setUploadStatus(`업로드 실패: ${error}`);
+        alert(`이미지 업로드 실패: ${error}`);
+      } else {
+        setUploadStatus('이미지 업로드 완료!');
+        setFormData(prev => ({ ...prev, cover_image: url }));
+        setTimeout(() => setUploadStatus(''), 2000);
+      }
+    }
+  };
+
+  const handleAudioChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAudioFileName(file.name);
+
+      // 미리보기
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAudioPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // 실제 업로드
+      setIsUploading(true);
+      setUploadStatus('음성 파일 업로드 중...');
+
+      const { url, error } = await uploadAudio(file);
+
+      setIsUploading(false);
+
+      if (error) {
+        setUploadStatus(`업로드 실패: ${error}`);
+        alert(`음성 파일 업로드 실패: ${error}`);
+      } else {
+        setUploadStatus('음성 파일 업로드 완료!');
+        setFormData(prev => ({ ...prev, audio_file: url }));
+        setTimeout(() => setUploadStatus(''), 2000);
+      }
     }
   };
 
@@ -132,22 +204,28 @@ export default function AdminEditPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">책 편집</h1>
               <p className="text-sm text-gray-600 mt-1">{book?.title}</p>
+              {uploadStatus && (
+                <p className="text-sm mt-1 font-medium text-green-600">
+                  {isUploading ? '⏳' : '✅'} {uploadStatus}
+                </p>
+              )}
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => router.push('/admin')}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                disabled={isUploading}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
                 취소
               </button>
               <button
                 onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-6 py-2 bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50"
+                disabled={saving || isUploading}
+                className="flex items-center gap-2 px-6 py-2 bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="w-5 h-5" />
-                {saving ? '저장 중...' : '저장'}
+                {saving ? '저장 중...' : isUploading ? '업로드 중...' : '저장'}
               </button>
             </div>
           </div>
@@ -208,25 +286,88 @@ export default function AdminEditPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-bold text-gray-700 mb-2">커버 이미지 URL</label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  🖼️ 커버 이미지
+                </label>
+                <div className="flex gap-4 items-start">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    disabled={isUploading}
+                    className="flex-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  {imagePreview && (
+                    <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-yellow-300 shadow-lg flex-shrink-0">
+                      <Image
+                        src={imagePreview}
+                        alt="Preview"
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  또는 이미지 URL을 아래에 직접 입력하세요
+                </p>
                 <input
                   type="text"
                   value={formData.cover_image}
-                  onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-yellow-200 rounded-lg focus:outline-none focus:border-yellow-400"
-                  placeholder="이미지 URL"
+                  onChange={(e) => {
+                    setFormData({ ...formData, cover_image: e.target.value });
+                    setImagePreview(e.target.value);
+                  }}
+                  className="mt-2 w-full px-4 py-2 border-2 border-yellow-200 rounded-lg focus:outline-none focus:border-yellow-400"
+                  placeholder="https://example.com/image.png"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-bold text-gray-700 mb-2">오디오 파일 URL</label>
-                <input
-                  type="text"
-                  value={formData.audio_file}
-                  onChange={(e) => setFormData({ ...formData, audio_file: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-yellow-200 rounded-lg focus:outline-none focus:border-yellow-400"
-                  placeholder="오디오 URL"
-                />
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  🎵 오디오 파일
+                </label>
+                <div className="space-y-3">
+                  <input
+                    type="file"
+                    accept="audio/mpeg,audio/mp3,audio/mp4,video/mp4,.mp3,.mp4"
+                    onChange={handleAudioChange}
+                    disabled={isUploading}
+                    className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  {audioPreview && (
+                    <div className="bg-gray-50 rounded-xl p-4 border-2 border-green-200">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-2xl">🎧</span>
+                        <span className="text-sm font-medium text-gray-700 truncate flex-1">
+                          {audioFileName || '음성 파일'}
+                        </span>
+                      </div>
+                      <audio
+                        controls
+                        src={audioPreview}
+                        className="w-full"
+                        style={{ height: '40px' }}
+                      />
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    또는 음성 파일 URL을 아래에 직접 입력하세요
+                  </p>
+                  <input
+                    type="text"
+                    value={formData.audio_file}
+                    onChange={(e) => {
+                      setFormData({ ...formData, audio_file: e.target.value });
+                      setAudioPreview(e.target.value);
+                      setAudioFileName(e.target.value.split('/').pop() || '');
+                    }}
+                    className="w-full px-4 py-2 border-2 border-yellow-200 rounded-lg focus:outline-none focus:border-yellow-400"
+                    placeholder="/audio/character.mp3"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -260,18 +401,19 @@ export default function AdminEditPage() {
           <div className="flex justify-end gap-3">
             <button
               onClick={() => router.push('/admin')}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              disabled={isUploading}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <X className="w-5 h-5" />
               취소
             </button>
             <button
               onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-2 px-6 py-2 bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50"
+              disabled={saving || isUploading}
+              className="flex items-center gap-2 px-6 py-2 bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-5 h-5" />
-              {saving ? '저장 중...' : '저장'}
+              {saving ? '저장 중...' : isUploading ? '업로드 중...' : '저장'}
             </button>
           </div>
         </div>
