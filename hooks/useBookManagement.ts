@@ -154,6 +154,11 @@ export function useBookManagement({ mode = 'admin' }: UseBookManagementOptions =
         }
       }
 
+      // 4. 배포 완료 후 Supabase에서 최신 데이터 다시 가져와서 localStorage 업데이트
+      // 이렇게 하면 Supabase가 자동 생성한 실제 ID가 화면에도 반영됨
+      const supabaseBooks = await fetchBooks();
+      saveToStorage(supabaseBooks);
+
       return { success: true };
     } catch (error) {
       console.error('Deploy error:', error);
