@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { uploadImage, uploadAudio } from '@/lib/supabase';
+import { uploadImage, uploadAudio, fetchBooks } from '@/lib/supabase';
 import CharacterEditor from '@/components/editor/CharacterEditor';
 import { X, Save } from 'lucide-react';
 import Image from 'next/image';
@@ -18,6 +18,7 @@ export default function AdminEditPage() {
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -37,19 +38,38 @@ export default function AdminEditPage() {
   const [uploadStatus, setUploadStatus] = useState('');
 
   useEffect(() => {
-    loadBook();
+    if (bookId && !error) {
+      loadBook();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookId]);
 
-  const loadBook = () => {
+  const loadBook = async () => {
     try {
-      // localStorage에서 모든 책 데이터 가져오기
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        throw new Error('저장된 데이터가 없습니다.');
+      setError(null);
+      
+      // 클라이언트 사이드 체크
+      if (typeof window === 'undefined') {
+        return;
       }
 
-      const books: Book[] = JSON.parse(stored);
+      // localStorage에서 모든 책 데이터 가져오기
+      const stored = localStorage.getItem(STORAGE_KEY);
+      let books: Book[] = [];
+
+      if (stored) {
+        try {
+          books = JSON.parse(stored);
+        } catch (parseError) {
+          console.error('localStorage 파싱 실패:', parseError);
+          // 파싱 실패 시 Supabase에서 로드
+          books = await fetchBooks();
+        }
+      } else {
+        // localStorage 없으면 Supabase에서 로드
+        books = await fetchBooks();
+      }
+
       const foundBook = books.find(b => b.id === parseInt(bookId));
 
       if (!foundBook) {
@@ -73,6 +93,7 @@ export default function AdminEditPage() {
       setAudioFileName(foundBook.audioFile ? foundBook.audioFile.split('/').pop() || '' : '');
     } catch (error) {
       console.error('책 로딩 실패:', error);
+      setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
       alert('책을 불러오는데 실패했습니다.');
       router.push('/admin');
     } finally {
@@ -140,7 +161,7 @@ export default function AdminEditPage() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.title.trim()) {
       alert('제목을 입력해주세요.');
       return;
@@ -149,13 +170,28 @@ export default function AdminEditPage() {
     setSaving(true);
 
     try {
-      // localStorage에서 모든 책 데이터 가져오기
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        throw new Error('저장된 데이터가 없습니다.');
+      // 클라이언트 사이드 체크
+      if (typeof window === 'undefined') {
+        throw new Error('클라이언트 환경에서만 저장할 수 있습니다.');
       }
 
-      const books: Book[] = JSON.parse(stored);
+      // localStorage에서 모든 책 데이터 가져오기
+      const stored = localStorage.getItem(STORAGE_KEY);
+      let books: Book[] = [];
+
+      if (stored) {
+        try {
+          books = JSON.parse(stored);
+        } catch (parseError) {
+          console.error('localStorage 파싱 실패:', parseError);
+          // 파싱 실패 시 Supabase에서 로드
+          books = await fetchBooks();
+        }
+      } else {
+        // localStorage 없으면 Supabase에서 로드
+        books = await fetchBooks();
+      }
+
       const bookIndex = books.findIndex(b => b.id === parseInt(bookId));
 
       if (bookIndex === -1) {
@@ -185,7 +221,7 @@ export default function AdminEditPage() {
       router.push('/admin');
     } catch (error) {
       console.error('저장 실패:', error);
-      alert('저장에 실패했습니다.');
+      alert(`저장에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     } finally {
       setSaving(false);
     }
