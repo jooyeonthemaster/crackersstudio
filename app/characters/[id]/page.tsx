@@ -3,8 +3,9 @@ import { Header } from '@/components/Header';
 import CharacterDetailClient from './CharacterDetailClient';
 import { notFound } from 'next/navigation';
 
-// ISR: 60초마다 자동으로 페이지 재생성 (Admin 수정사항 반영)
-export const revalidate = 60;
+// 동적 렌더링: 매 요청마다 최신 데이터 가져오기 (배포 후 즉시 반영)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function CharacterPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;

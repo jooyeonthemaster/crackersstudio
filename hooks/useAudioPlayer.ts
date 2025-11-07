@@ -67,6 +67,12 @@ export function useAudioPlayer() {
 
     try {
       if (audioRef.current) {
+        // audioFile이 없거나 빈 문자열이면 재생하지 않음
+        if (!book.audioFile || book.audioFile.trim() === '') {
+          alert('이 카드에는 음성 파일이 없습니다.');
+          return;
+        }
+        
         setIsLoading(true);
         audioRef.current.src = book.audioFile;
         audioRef.current.volume = volume;

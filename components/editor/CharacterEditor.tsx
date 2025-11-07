@@ -141,7 +141,28 @@ export default function CharacterEditor({
       },
     },
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
+      let html = editor.getHTML();
+      
+      // 섹션 콘텐츠 영역에서 "새 섹션" 텍스트 강제 제거
+      if (typeof window !== 'undefined') {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const sectionContents = doc.querySelectorAll('.editor-section-content');
+        
+        sectionContents.forEach((contentDiv) => {
+          // "새 섹션" 텍스트만 있는 paragraph나 빈 paragraph 제거
+          const paragraphs = contentDiv.querySelectorAll('p');
+          paragraphs.forEach((p) => {
+            const text = p.textContent?.trim();
+            if (text === '새 섹션' || text === '') {
+              p.remove();
+            }
+          });
+        });
+        
+        html = doc.body.innerHTML;
+      }
+      
       onChange?.(html);
     },
   });
@@ -152,7 +173,28 @@ export default function CharacterEditor({
       const currentContent = editor.getHTML();
       // 현재 에디터 내용과 다를 때만 업데이트 (무한 루프 방지)
       if (currentContent !== content) {
-        editor.commands.setContent(content);
+        // content에서 "새 섹션" 텍스트 제거
+        let cleanedContent = content;
+        if (typeof window !== 'undefined' && content) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(content, 'text/html');
+          const sectionContents = doc.querySelectorAll('.editor-section-content');
+          
+          sectionContents.forEach((contentDiv) => {
+            // "새 섹션" 텍스트만 있는 paragraph 제거
+            const paragraphs = contentDiv.querySelectorAll('p');
+            paragraphs.forEach((p) => {
+              const text = p.textContent?.trim();
+              if (text === '새 섹션') {
+                p.remove();
+              }
+            });
+          });
+          
+          cleanedContent = doc.body.innerHTML;
+        }
+        
+        editor.commands.setContent(cleanedContent);
       }
     }
   }, [editor, content]);

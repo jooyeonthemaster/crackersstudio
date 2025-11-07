@@ -38,15 +38,15 @@ export function BookFormModal({ isOpen, onClose, onSave, editBook }: BookFormMod
         title: editBook.title,
         author: editBook.author,
         coverImage: editBook.coverImage,
-        audioFile: editBook.audioFile,
+        audioFile: editBook.audioFile || '',
         description: editBook.description || '',
         content: editBook.content || '',
         genre: editBook.genre || 'Character',
         publishedYear: editBook.publishedYear || new Date().getFullYear(),
       });
       setImagePreview(editBook.coverImage);
-      setAudioPreview(editBook.audioFile);
-      setAudioFileName(editBook.audioFile.split('/').pop() || '');
+      setAudioPreview(editBook.audioFile || '');
+      setAudioFileName(editBook.audioFile ? editBook.audioFile.split('/').pop() || '' : '');
     } else {
       // 초기화
       setFormData({
@@ -259,7 +259,7 @@ export function BookFormModal({ isOpen, onClose, onSave, editBook }: BookFormMod
                 {/* 음성 파일 */}
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
-                    🎵 음성 파일 *
+                    🎵 음성 파일 (선택)
                   </label>
                   <div className="space-y-3">
                     <input

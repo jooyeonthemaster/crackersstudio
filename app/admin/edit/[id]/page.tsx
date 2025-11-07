@@ -2,41 +2,31 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { supabase, uploadImage, uploadAudio } from '@/lib/supabase';
+import { uploadImage, uploadAudio } from '@/lib/supabase';
 import CharacterEditor from '@/components/editor/CharacterEditor';
 import { X, Save } from 'lucide-react';
 import Image from 'next/image';
+import { Book } from '@/types';
 
-interface BookDatabase {
-  id: number;
-  title: string;
-  author: string | null;
-  cover_image: string | null;
-  audio_file: string | null;
-  description: string | null;
-  content: string | null;
-  genre: string | null;
-  published_year: number | null;
-  display_order: number | null;
-}
+const STORAGE_KEY = 'crackers_studio_books_draft';
 
 export default function AdminEditPage() {
   const router = useRouter();
   const params = useParams();
   const bookId = params.id as string;
 
-  const [book, setBook] = useState<BookDatabase | null>(null);
+  const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     author: '',
-    cover_image: '',
-    audio_file: '',
+    coverImage: '',
+    audioFile: '',
     description: '',
     content: '',
     genre: '',
-    published_year: '',
+    publishedYear: '',
   });
 
   // 파일 업로드 관련 상태
@@ -51,35 +41,36 @@ export default function AdminEditPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookId]);
 
-  const loadBook = async () => {
+  const loadBook = () => {
     try {
-      const { data, error } = await supabase
-        .from('books')
-        .select('*')
-        .eq('id', bookId)
-        .single();
+      // localStorage에서 모든 책 데이터 가져오기
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        throw new Error('저장된 데이터가 없습니다.');
+      }
 
-      if (error) throw error;
-      if (!data) throw new Error('Book not found');
+      const books: Book[] = JSON.parse(stored);
+      const foundBook = books.find(b => b.id === parseInt(bookId));
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setBook(data as any);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const bookData = data as any;
+      if (!foundBook) {
+        throw new Error('책을 찾을 수 없습니다.');
+      }
+
+      setBook(foundBook);
       setFormData({
-        title: bookData.title || '',
-        author: bookData.author || '',
-        cover_image: bookData.cover_image || '',
-        audio_file: bookData.audio_file || '',
-        description: bookData.description || '',
-        content: bookData.content || '',
-        genre: bookData.genre || 'Character',
-        published_year: bookData.published_year?.toString() || '',
+        title: foundBook.title || '',
+        author: foundBook.author || '',
+        coverImage: foundBook.coverImage || '',
+        audioFile: foundBook.audioFile || '',
+        description: foundBook.description || '',
+        content: foundBook.content || '',
+        genre: foundBook.genre || 'Character',
+        publishedYear: foundBook.publishedYear?.toString() || '',
       });
       // 미리보기 상태 초기화
-      setImagePreview(bookData.cover_image || '');
-      setAudioPreview(bookData.audio_file || '');
-      setAudioFileName(bookData.audio_file ? bookData.audio_file.split('/').pop() || '' : '');
+      setImagePreview(foundBook.coverImage || '');
+      setAudioPreview(foundBook.audioFile || '');
+      setAudioFileName(foundBook.audioFile ? foundBook.audioFile.split('/').pop() || '' : '');
     } catch (error) {
       console.error('책 로딩 실패:', error);
       alert('책을 불러오는데 실패했습니다.');
@@ -112,7 +103,7 @@ export default function AdminEditPage() {
         alert(`이미지 업로드 실패: ${error}`);
       } else {
         setUploadStatus('이미지 업로드 완료!');
-        setFormData(prev => ({ ...prev, cover_image: url }));
+        setFormData(prev => ({ ...prev, coverImage: url }));
         setTimeout(() => setUploadStatus(''), 2000);
       }
     }
@@ -143,13 +134,13 @@ export default function AdminEditPage() {
         alert(`음성 파일 업로드 실패: ${error}`);
       } else {
         setUploadStatus('음성 파일 업로드 완료!');
-        setFormData(prev => ({ ...prev, audio_file: url }));
+        setFormData(prev => ({ ...prev, audioFile: url }));
         setTimeout(() => setUploadStatus(''), 2000);
       }
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!formData.title.trim()) {
       alert('제목을 입력해주세요.');
       return;
@@ -158,26 +149,39 @@ export default function AdminEditPage() {
     setSaving(true);
 
     try {
-      const updateData: Partial<BookDatabase> = {
+      // localStorage에서 모든 책 데이터 가져오기
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        throw new Error('저장된 데이터가 없습니다.');
+      }
+
+      const books: Book[] = JSON.parse(stored);
+      const bookIndex = books.findIndex(b => b.id === parseInt(bookId));
+
+      if (bookIndex === -1) {
+        throw new Error('책을 찾을 수 없습니다.');
+      }
+
+      // 수정된 데이터로 업데이트
+      const updatedBook: Book = {
+        ...books[bookIndex],
         title: formData.title,
-        author: formData.author || null,
-        cover_image: formData.cover_image || null,
-        audio_file: formData.audio_file || null,
-        description: formData.description || null,
-        content: formData.content || null,
+        author: formData.author || '',
+        coverImage: formData.coverImage || '',
+        audioFile: formData.audioFile || undefined,
+        description: formData.description || undefined,
+        content: formData.content || undefined,
         genre: formData.genre || 'Character',
-        published_year: formData.published_year ? parseInt(formData.published_year) : null,
+        publishedYear: formData.publishedYear ? parseInt(formData.publishedYear) : undefined,
       };
 
-      const { error } = await supabase
-        .from('books')
-        // @ts-expect-error - Supabase type mismatch
-        .update(updateData)
-        .eq('id', bookId);
+      // 배열에서 해당 책 교체
+      books[bookIndex] = updatedBook;
 
-      if (error) throw error;
+      // localStorage에 저장
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
 
-      alert('저장되었습니다!');
+      alert('저장되었습니다! (📝 Draft 모드에 저장되었습니다. 메인 페이지에 반영하려면 "배포하기" 버튼을 눌러주세요.)');
       router.push('/admin');
     } catch (error) {
       console.error('저장 실패:', error);
@@ -278,8 +282,8 @@ export default function AdminEditPage() {
                 <label className="block text-sm font-bold text-gray-700 mb-2">출판 연도</label>
                 <input
                   type="number"
-                  value={formData.published_year}
-                  onChange={(e) => setFormData({ ...formData, published_year: e.target.value })}
+                  value={formData.publishedYear}
+                  onChange={(e) => setFormData({ ...formData, publishedYear: e.target.value })}
                   className="w-full px-4 py-2 border-2 border-yellow-200 rounded-lg focus:outline-none focus:border-yellow-400"
                   placeholder="예: 2024"
                 />
@@ -313,16 +317,16 @@ export default function AdminEditPage() {
                 <p className="mt-2 text-xs text-gray-500">
                   또는 이미지 URL을 아래에 직접 입력하세요
                 </p>
-                <input
-                  type="text"
-                  value={formData.cover_image}
-                  onChange={(e) => {
-                    setFormData({ ...formData, cover_image: e.target.value });
-                    setImagePreview(e.target.value);
-                  }}
-                  className="mt-2 w-full px-4 py-2 border-2 border-yellow-200 rounded-lg focus:outline-none focus:border-yellow-400"
-                  placeholder="https://example.com/image.png"
-                />
+                  <input
+                    type="text"
+                    value={formData.coverImage}
+                    onChange={(e) => {
+                      setFormData({ ...formData, coverImage: e.target.value });
+                      setImagePreview(e.target.value);
+                    }}
+                    className="mt-2 w-full px-4 py-2 border-2 border-yellow-200 rounded-lg focus:outline-none focus:border-yellow-400"
+                    placeholder="https://example.com/image.png"
+                  />
               </div>
 
               <div className="md:col-span-2">
@@ -358,9 +362,9 @@ export default function AdminEditPage() {
                   </p>
                   <input
                     type="text"
-                    value={formData.audio_file}
+                    value={formData.audioFile}
                     onChange={(e) => {
-                      setFormData({ ...formData, audio_file: e.target.value });
+                      setFormData({ ...formData, audioFile: e.target.value });
                       setAudioPreview(e.target.value);
                       setAudioFileName(e.target.value.split('/').pop() || '');
                     }}

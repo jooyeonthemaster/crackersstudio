@@ -23,3 +23,8 @@ CREATE POLICY "Enable delete for all users" ON books
 
 
 
+
+
+
+
+

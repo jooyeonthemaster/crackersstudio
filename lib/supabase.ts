@@ -74,9 +74,9 @@ export async function fetchBooks() {
     title: book.title,
     author: book.author || '',
     coverImage: book.cover_image || '',
-    audioFile: book.audio_file || '',
-    description: book.description || '',
-    content: book.content || '',
+    audioFile: book.audio_file && book.audio_file.trim() !== '' ? book.audio_file : undefined,
+    description: book.description || undefined,
+    content: book.content || undefined,
     genre: book.genre || 'Character',
     publishedYear: book.published_year || 2024,
   }));
@@ -87,7 +87,7 @@ export async function createBook(book: {
   title: string;
   author: string;
   coverImage: string;
-  audioFile: string;
+  audioFile?: string;
   description?: string;
   content?: string;
   genre?: string;
@@ -99,7 +99,7 @@ export async function createBook(book: {
       title: book.title,
       author: book.author,
       cover_image: book.coverImage,
-      audio_file: book.audioFile,
+      audio_file: book.audioFile && book.audioFile.trim() !== '' ? book.audioFile : null,
       description: book.description,
       content: book.content,
       genre: book.genre || 'Character',
@@ -133,7 +133,10 @@ export async function updateBook(id: number, updates: {
   if (updates.title) dbUpdates.title = updates.title;
   if (updates.author) dbUpdates.author = updates.author;
   if (updates.coverImage) dbUpdates.cover_image = updates.coverImage;
-  if (updates.audioFile) dbUpdates.audio_file = updates.audioFile;
+  // audioFile이 undefined이거나 빈 문자열이면 null로 저장 (데이터베이스가 nullable인 경우)
+  if (updates.audioFile !== undefined) {
+    dbUpdates.audio_file = updates.audioFile && updates.audioFile.trim() !== '' ? updates.audioFile : null;
+  }
   if (updates.description !== undefined) dbUpdates.description = updates.description;
   if (updates.content !== undefined) dbUpdates.content = updates.content;
   if (updates.genre) dbUpdates.genre = updates.genre;

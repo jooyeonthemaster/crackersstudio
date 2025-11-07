@@ -3,7 +3,7 @@ export interface Book {
   title: string;
   author: string;
   coverImage: string;
-  audioFile: string;
+  audioFile?: string;
   description?: string;
   content?: string;
   genre?: string;

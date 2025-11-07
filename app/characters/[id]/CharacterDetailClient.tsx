@@ -137,25 +137,26 @@ export default function CharacterDetailClient({ character }: CharacterDetailClie
             </div>
           </div>
 
-          {/* 오디오 플레이어 */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-6 border-3 border-yellow-300 shadow-xl"
-            role="region"
-            aria-label="오디오 플레이어"
-          >
-            <div className="flex items-center gap-6">
-              {/* 재생 버튼 */}
-              <motion.button
-                onClick={() => playBook(character)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex-shrink-0"
-                aria-label={isCurrentPlaying ? `${character.title} 일시정지` : `${character.title} 재생`}
-                aria-pressed={isCurrentPlaying}
-              >
+          {/* 오디오 플레이어 - audioFile이 있을 때만 표시 */}
+          {character.audioFile && character.audioFile.trim() !== '' ? (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-2xl p-6 border-3 border-yellow-300 shadow-xl"
+              role="region"
+              aria-label="오디오 플레이어"
+            >
+              <div className="flex items-center gap-6">
+                {/* 재생 버튼 */}
+                <motion.button
+                  onClick={() => playBook(character)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex-shrink-0"
+                  aria-label={isCurrentPlaying ? `${character.title} 일시정지` : `${character.title} 재생`}
+                  aria-pressed={isCurrentPlaying}
+                >
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 via-yellow-300 to-green-400 flex items-center justify-center shadow-xl">
                   <motion.span
                     className="text-3xl text-white"
@@ -215,6 +216,19 @@ export default function CharacterDetailClient({ character }: CharacterDetailClie
               </div>
             </div>
           </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-2xl p-6 border-3 border-yellow-300 shadow-xl"
+            >
+              <div className="text-center py-4">
+                <div className="text-4xl mb-3">🎵</div>
+                <p className="text-gray-600 font-medium">이 캐릭터에는 음성 파일이 없습니다.</p>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* 스토리 콘텐츠 */}
