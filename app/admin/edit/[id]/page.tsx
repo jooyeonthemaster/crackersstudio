@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { uploadImage, uploadAudio, fetchBooks } from '@/lib/supabase';
+import { cleanSectionContent } from '@/lib/editorUtils';
 import CharacterEditor from '@/components/editor/CharacterEditor';
 import { X, Save } from 'lucide-react';
 import Image from 'next/image';
@@ -206,7 +207,7 @@ export default function AdminEditPage() {
         coverImage: formData.coverImage || '',
         audioFile: formData.audioFile || undefined,
         description: formData.description || undefined,
-        content: formData.content || undefined,
+        content: formData.content ? cleanSectionContent(formData.content) : undefined,
         genre: formData.genre || 'Character',
         publishedYear: formData.publishedYear ? parseInt(formData.publishedYear) : undefined,
       };

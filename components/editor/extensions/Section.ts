@@ -235,6 +235,7 @@ export const Section = Node.create<SectionOptions>({
     };
   },
 
+
   addCommands() {
     return {
       setSection:
@@ -248,7 +249,12 @@ export const Section = Node.create<SectionOptions>({
             .insertContentAt(docSize, {
               type: 'section',
               attrs: { title: '새 섹션' },
-              content: [{ type: 'paragraph' }],
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [], // 명시적으로 빈 콘텐츠
+                }
+              ],
             })
             .run();
         },
