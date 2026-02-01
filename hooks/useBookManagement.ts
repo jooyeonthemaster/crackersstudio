@@ -88,6 +88,18 @@ export function useBookManagement({ mode = 'admin' }: UseBookManagementOptions =
     saveToStorage(initialBooks);
   };
 
+  // Supabase에서 최신 데이터 새로고침 (Admin 전용)
+  const refreshFromSupabase = async () => {
+    try {
+      const supabaseBooks = await fetchBooks();
+      saveToStorage(supabaseBooks);
+      return { success: true, count: supabaseBooks.length };
+    } catch (error) {
+      console.error('Refresh error:', error);
+      return { success: false, error: String(error) };
+    }
+  };
+
   // Supabase에 배포 (Admin 전용) - URL 유지를 위해 UPDATE 방식으로 변경!
   const deployToSupabase = async () => {
     if (mode !== 'admin') {
@@ -174,6 +186,7 @@ export function useBookManagement({ mode = 'admin' }: UseBookManagementOptions =
     deleteBook,
     reorderBooks,
     resetToDefault,
+    refreshFromSupabase,
     deployToSupabase,
   };
 }

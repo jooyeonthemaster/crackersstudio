@@ -11,9 +11,10 @@ import { Book } from '@/types';
 import Link from 'next/link';
 
 export default function AdminPage() {
-  const { books, isLoaded, addBook, deleteBook, reorderBooks, resetToDefault, deployToSupabase } = useBookManagement({ mode: 'admin' });
+  const { books, isLoaded, addBook, deleteBook, reorderBooks, resetToDefault, refreshFromSupabase, deployToSupabase } = useBookManagement({ mode: 'admin' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeploying, setIsDeploying] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -53,6 +54,20 @@ export default function AdminPage() {
     }
   };
 
+  const handleRefreshFromSupabase = async () => {
+    if (confirm('Supabase에서 최신 데이터를 불러옵니다. 현재 로컬 수정사항이 있다면 덮어씌워집니다. 계속하시겠습니까?')) {
+      setIsRefreshing(true);
+      const result = await refreshFromSupabase();
+      setIsRefreshing(false);
+
+      if (result.success) {
+        alert(`✅ 새로고침 완료! ${result.count}개의 카드를 불러왔습니다.`);
+      } else {
+        alert(`❌ 새로고침 실패: ${result.error}`);
+      }
+    }
+  };
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-white to-green-50">
@@ -68,44 +83,54 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-green-50">
       {/* 헤더 */}
       <div className="bg-white border-b-4 border-yellow-300 shadow-lg sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-green-600 bg-clip-text text-transparent">
-                  🎨 어드민 페이지
-                </h1>
-                <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">
-                  📝 DRAFT
-                </span>
-              </div>
-              <p className="text-sm text-gray-600 mt-1">
-                드래그하여 순서 변경, 클릭하여 수정, X로 삭제 → 🚀 배포하기로 메인에 반영
-              </p>
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          {/* 상단: 제목 + 메인으로 */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-green-600 bg-clip-text text-transparent">
+                🎨 어드민 페이지
+              </h1>
+              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">
+                📝 DRAFT
+              </span>
             </div>
-            <div className="flex gap-3">
-              <Link
-                href="/"
-                className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-full transition-colors"
+            <Link
+              href="/"
+              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-full transition-colors text-sm"
+            >
+              🏠 메인으로
+            </Link>
+          </div>
+
+          {/* 하단: 작업 버튼들 */}
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs text-gray-500 mr-2">
+              드래그로 순서 변경 · 클릭하여 수정 · X로 삭제
+            </p>
+            <div className="flex flex-wrap gap-2 ml-auto">
+              <button
+                onClick={handleRefreshFromSupabase}
+                disabled={isRefreshing}
+                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
               >
-                🏠 메인으로
-              </Link>
+                {isRefreshing ? '⏳ 불러오는 중...' : '☁️ DB 동기화'}
+              </button>
               <button
                 onClick={resetToDefault}
-                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors"
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors text-sm whitespace-nowrap"
               >
                 🔄 초기화
               </button>
               <button
                 onClick={handleDeploy}
                 disabled={isDeploying}
-                className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
               >
                 {isDeploying ? '⏳ 배포 중...' : '🚀 배포하기'}
               </button>
               <button
                 onClick={handleAdd}
-                className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-green-400 hover:from-yellow-500 hover:to-green-500 text-white font-bold rounded-full shadow-lg transition-all"
+                className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-green-400 hover:from-yellow-500 hover:to-green-500 text-white font-bold rounded-full shadow-lg transition-all text-sm whitespace-nowrap"
               >
                 ➕ 새 카드 추가
               </button>
